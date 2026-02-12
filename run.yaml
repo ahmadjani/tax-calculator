@@ -7,10 +7,10 @@ spec:
     name: tax-calculator-pipeline
   params:
     - name: repo-url
-      value: "https://github.com/YOUR_GITHUB_USERNAME/tax-calculator" # Apna GitHub URL yahan likhein
+      value: "https://github.com/ahmadjani/tax-calculator" 
     - name: image-url
       value: "us.icr.io/sn-labs-ahmadkhanoff/tax-calculator:v1" # Aapka IBM Registry address
   workspaces:
     - name: pipeline-workspace
       persistentVolumeClaim:
-        claimName: pipeline-pvc # Jo workspace aapne pehle banaya ho
+        claimName: pipeline-pvc 
