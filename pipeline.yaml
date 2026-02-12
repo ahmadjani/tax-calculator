@@ -1,0 +1,61 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: tax-calculator-pipeline
+spec:
+  workspaces:
+    - name: pipeline-workspace
+  params:
+    - name: repo-url
+      type: string
+    - name: image-url
+      type: string
+  tasks:
+    # 1. Clone the code from GitHub
+    - name: fetch-repository
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: pipeline-workspace
+      params:
+        - name: url
+          value: $(params.repo-url)
+        - name: revision
+          value: "main"
+
+    # 2. Install dependencies (npm task)
+    - name: install-dependencies
+      taskRef:
+        name: npm
+      runAfter:
+        - fetch-repository
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+      params:
+        - name: ARGS
+          value: ["install"]
+
+    # 3. Run Unit Tests (jasmine task)
+    - name: run-tests
+      taskRef:
+        name: jasmine
+      runAfter:
+        - install-dependencies
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+
+    # 4. Build and Push Image
+    - name: build-and-push
+      taskRef:
+        name: buildah
+      runAfter:
+        - run-tests
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+      params:
+        - name: IMAGE
+          value: $(params.image-url)
